@@ -1,5 +1,6 @@
 # study-thread
 - 스레드 이용방법이 가물가물해져서 다시 기록해본다.
+- 신용권 저 '이것이 자바다' 참고
 
 ## 1. 작업스레드
 - 메인스레드가 있고, 진짜 작업을 할 작업스레드가 있다.
@@ -174,7 +175,78 @@ in this thread's name is ThreadB
 */
 ````
 
-
 ## 8. 스레드 우선순위 
 - priority 넣을 수 있는 방식 : 제어가능
 - round robin 방식 : jvm이 결정해서 우리가 어찌하지 못함.
+
+## 9. 공유 객체 문제 예제
+````java
+package ttt;
+
+public class SharingTest {
+
+	public static void main(String[] args) {
+		Calculator calculator = new Calculator();
+
+		User1 user1 = new User1();
+		user1.setCalculator(calculator);
+		user1.start();
+
+		User2 user2 = new User2();
+		user2.setCalculator(calculator);
+		user2.start();
+
+	}
+
+}
+
+class Calculator {
+	private int memory;
+
+	public int getMemory() {
+		return memory;
+	}
+
+	public void setMemory(int memory) {
+		try {
+			this.memory = memory;
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+		} finally {
+			System.out.println(Thread.currentThread().getName() + ": " + this.memory);
+		}
+	}
+}
+
+class User1 extends Thread {
+	private Calculator calculator;
+
+	public void setCalculator(Calculator calculator) {
+		this.setName("User 1");
+		this.calculator = calculator;
+	}
+
+	public void run() {
+		calculator.setMemory(100);
+	}
+}
+
+class User2 extends Thread {
+	private Calculator calculator;
+
+	public void setCalculator(Calculator calculator) {
+		this.setName("User 2");
+		this.calculator = calculator;
+	}
+
+	public void run() {
+		calculator.setMemory(50);
+	}
+}
+
+/*
+100, 50이 아니라 최종값이 50이 나와버림
+User 1: 50
+User 2: 50
+*/
+````
