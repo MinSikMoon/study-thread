@@ -42,6 +42,139 @@ Thread thread = new Thread(
 ## 4. Thread 실행
 - Thread는 그냥 실행되지 않는다!
 - start() 메소드 써야한다.
+- start()하면 파라미터로 받은 runnable의 run()을 대신 프록시 처럼 실행해준다.
 ````java
 thread.start();
 ````
+
+## 5. Basic 야호 thread 예제
+````java
+
+public class BasicMultiThreadTest {
+
+	public static void main(String[] args) {
+		Thread task = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				for(int i=0; i<5; i++) {
+					System.out.println("호");
+					try {
+						Thread.sleep(500);
+					} catch (Exception e) {}
+				}
+			}
+		});
+		
+		//task thread : '호'를 외친다.
+		task.start();
+		
+		// main thread : '야' 를 외친다.
+		for(int i=0; i<5; i++) {
+			System.out.println("야");
+			try {
+				Thread.sleep(500);
+			} catch (Exception e) {}
+		}
+	}
+
+}
+
+/**
+야
+호
+호
+야
+호
+야
+호
+야
+호
+야
+/**
+````
+
+## 6. Thread 이름
+````java
+thread.setName('1번');
+thread.getName();
+Thread curThread = Thread.currentThread();
+````
+
+## 7. 자식 클래스로 thread 만들기
+````java
+public class BasicMultiThreadTest {
+	public static void main(String[] args) {
+		//main thread 얻기
+		Thread mainThread = Thread.currentThread();
+		System.out.println("main thread name is " + mainThread.getName());
+		//Thread2 준비
+		Thread task1 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				for(int i=0; i<5; i++) {
+					System.out.println("호");
+					try {
+						Thread.sleep(500);
+					} catch (Exception e) {}
+				}
+			}
+		});
+		
+		//task thread : '호'를 외친다.
+		task1.start();
+		
+		//그냥 thread 생성자로 만든거
+		ThreadB threadb = new ThreadB();
+		System.out.println(threadb.getName() + "start");
+		threadb.start();
+		
+		// main thread : '야' 를 외친다.
+		for(int i=0; i<5; i++) {
+			System.out.println("야");
+			try {
+				Thread.sleep(500);
+			} catch (Exception e) {}
+		}
+	}
+}
+
+class ThreadB extends Thread{
+	public ThreadB() {
+		setName("this thread's name is ThreadB");
+	}
+	
+	public void run() {
+		for(int i=0; i<5; i++) {
+			System.out.println("in " + getName());
+			try {
+				Thread.sleep(500);
+			} catch (Exception e) {}
+		}
+	}
+}
+
+/*
+main thread name is main
+호
+this thread's name is ThreadBstart
+야
+in this thread's name is ThreadB
+호
+야
+in this thread's name is ThreadB
+호
+야
+in this thread's name is ThreadB
+호
+야
+in this thread's name is ThreadB
+호
+야
+in this thread's name is ThreadB
+*/
+````
+
+
+## 8. 스레드 우선순위 
+- priority 넣을 수 있는 방식 : 제어가능
+- round robin 방식 : jvm이 결정해서 우리가 어찌하지 못함.
