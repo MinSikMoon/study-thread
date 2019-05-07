@@ -347,3 +347,31 @@ User 1: 100
 User 2: 50
 */
 ````
+### 동기화 블록 스타일
+````java
+class Calculator {
+	private int memory;
+
+	public int getMemory() {
+		return memory;
+	}
+
+	/*
+	 * public synchronized void setMemory(int memory) { try { this.memory = memory;
+	 * Thread.sleep(200); } catch (InterruptedException e) { } finally {
+	 * System.out.println(Thread.currentThread().getName() + ": " + this.memory); }
+	 * }
+	 */
+	public void setMemory(int memory) {
+		synchronized (this) {
+			try {
+				this.memory = memory;
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+			} finally {
+				System.out.println(Thread.currentThread().getName() + ": " + this.memory);
+			}
+		}
+	}
+}
+````
