@@ -250,3 +250,100 @@ User 1: 50
 User 2: 50
 */
 ````
+
+## 10. 동기화 메소드 / 동기화 블록
+- 하나의 스레드가 사용중인 공유객체를 다른 스레드가 사용하지 못하게 하려면 잠금, lock 걸어야 한다.
+- **Critical Section (임계영역)** : only 하나의 스레드만 실행 가능한 코드 영역
+- 임계영역을 지정하기 위해 자바가 제공하는 2가지? = **동기화 메소드 / 동기화 블록**
+- 스레드가 객체 내부의 동기화 메소드 or 블록에 들어가면, 즉시 객체에 잠금을 건다.
+- 다른 스레드가 크리티컬 섹션을 실행하지 못하게 한다. 
+- 어떻게 하면 되나? => **synchronized** 를 메소드 선언에 붙인다. 
+- 인스턴스/ 정적 메소드, 어디든 부착 가능!
+````java
+public synchronized void method(){
+    //critical section // only a thread can do something in this area.
+}
+````
+- 잠금해제는 언제? => 스레드가 동기화 메소드 실행 종료하면 잠금해제.
+- 메소드 전체가 아닌, 일부 내용만 임계 영역으로 만들고 싶을때
+````java
+public void method(){
+    //여기서는 여러 스레드가 실행 가능한 zone임.
+    synchronized(객체){ //동기화블록 //공유객체가 자기자신이라면 this
+        //critical section 
+    }
+    //다시 여러 스레드가 실행가능한 영역
+}
+````
+### 위의 calculator 예제를 동기화 메소드를 사용해 해결
+
+````java
+package ttt;
+
+public class SharingTest {
+
+	public static void main(String[] args) {
+		Calculator calculator = new Calculator();
+
+		User1 user1 = new User1();
+		user1.setCalculator(calculator);
+		user1.start();
+
+		User2 user2 = new User2();
+		user2.setCalculator(calculator);
+		user2.start();
+
+	}
+
+}
+
+class Calculator {
+	private int memory;
+
+	public int getMemory() {
+		return memory;
+	}
+
+	public void setMemory(int memory) {
+		try {
+			this.memory = memory;
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+		} finally {
+			System.out.println(Thread.currentThread().getName() + ": " + this.memory);
+		}
+	}
+}
+
+class User1 extends Thread {
+	private Calculator calculator;
+
+	public synchronized void setCalculator(Calculator calculator) {
+		this.setName("User 1");
+		this.calculator = calculator;
+	}
+
+	public void run() {
+		calculator.setMemory(100);
+	}
+}
+
+class User2 extends Thread {
+	private Calculator calculator;
+
+	public void setCalculator(Calculator calculator) {
+		this.setName("User 2");
+		this.calculator = calculator;
+	}
+
+	public void run() {
+		calculator.setMemory(50);
+	}
+}
+
+/*
+100, 50으로 정상적으로 나온다.
+User 1: 100
+User 2: 50
+*/
+````
