@@ -1,4 +1,4 @@
-# study-thread  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    ![](https://img.shields.io/github/last-commit/MinSikMoon/study-thread.svg)
+# study-thread  &nbsp;    ![](https://img.shields.io/github/last-commit/MinSikMoon/study-thread.svg)
 - 최근 업무에서 하루 한번, 저녁 특정시간에 실행되는 배치작업을 만들어야 되는 일이 있었다.
 - 외부 협회에서 특정값을 조회, 입력해주는 반복작업인데, 비정상적으로 시간이 걸릴 경우를 대비해 timeout을 걸고 싶었다. [예제 바로가기](#example-1)
 - 가물가물해진 스레드 사용법 기록
