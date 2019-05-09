@@ -375,3 +375,37 @@ class Calculator {
 	}
 }
 ````
+## 11. ExecutorService, Callable, Future 기본 사용법
+````java
+public static void main(String[] args) {
+		ExecutorService executorService = Executors.newSingleThreadExecutor();//ExecutorService executorService = Executors.newFixedThreadPool(1);
+		
+		System.out.println("작업요청! " +  Runtime.getRuntime().availableProcessors() + "개의 최대 스레드");
+		
+		//1. 기능 준비 : 원하는 기능을 call 속에 넣으면 되는것!
+		Callable<Integer> task = new Callable<Integer>() {
+			@Override
+			public Integer call() throws Exception {
+				int sum = 0;
+				for(int i=1; i<=10; i++) {
+					sum += i;
+				}
+				return sum;
+			}
+		};
+		
+		//2. 기능 실행 : return이 있다면 callable로, 없다면 runnable로
+		Future<Integer> future = executorService.submit(task);
+		
+		try {
+			int sum = future.get();
+			System.out.println("finished sum : " + sum);
+			System.out.println("작업 끝");
+		} catch (Exception e) {
+			System.out.println("error occured : " + e.getMessage());
+		} finally {
+			executorService.shutdown();
+		}
+	}
+````
+
