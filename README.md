@@ -377,6 +377,12 @@ class Calculator {
 ````
 ## 11. ExecutorService, Callable, Future 기본 사용법
 ````java
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
 public static void main(String[] args) {
 		ExecutorService executorService = Executors.newSingleThreadExecutor();//ExecutorService executorService = Executors.newFixedThreadPool(1);
 		
@@ -409,3 +415,109 @@ public static void main(String[] args) {
 	}
 ````
 
+### Future에 timeout 걸기
+````java
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+public class SharingTest {
+	private static String methodThatTakesLongTime() throws InterruptedException {
+		Thread.sleep(300);
+		return "wow it takes too long";
+	}
+	public static void main(String[] args) {
+		ExecutorService executorService = Executors.newSingleThreadExecutor();
+		
+		//1. 기능 준비 : 원하는 기능을 call 속에 넣으면 되는것!
+		Callable<String> task = new Callable<String>() {
+			@Override
+			public String call() throws Exception {
+				return methodThatTakesLongTime();
+			}
+		};
+		
+		//2. 기능 실행 : return이 있다면 callable로, 없다면 runnable로
+		Future<String> future = executorService.submit(task);
+		
+		try {
+			String result = future.get(200,TimeUnit.MILLISECONDS);
+			System.out.println(result);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("error occured : " + e.getMessage());
+		} finally {
+			executorService.shutdown();
+		}
+	}
+}
+/*
+java.util.concurrent.TimeoutException
+	at java.util.concurrent.FutureTask.get(FutureTask.java:205)
+	at ttt.SharingTest.main(SharingTest.java:29)
+error occured : null
+
+
+-> timeout 넉넉히 주면 
+wow it takes too long
+*/
+````
+### loop이 있는 future task에 timeout 주기 : 3초컷
+````java
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+public class SharingTest {
+	
+	public static void main(String[] args) {
+		ExecutorService executorService = Executors.newSingleThreadExecutor();
+		
+		//1. ready 
+		Callable<List<String>> task = new Callable<List<String>>() {
+			@Override
+			public List<String> call() throws Exception {
+				ArrayList<String> arrList = new ArrayList<String>();
+				int cnt = 0;
+				while(cnt < 100000) {
+						System.out.println("working");
+						Thread.sleep(100);
+						cnt++;
+				}
+				arrList.add("success");
+				return arrList;
+			}
+		};
+		
+		//2. execute
+		Future<List<String>> future = executorService.submit(task);
+		
+		try {
+			List<String> result = future.get(3, TimeUnit.SECONDS);
+			System.out.println(result.get(0) + "!!");
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			executorService.shutdownNow();
+		}
+	}
+}
+/*
+3초뒤 타임아웃 익셉션 뜸.
+... 
+working
+working
+java.util.concurrent.TimeoutException
+	at java.util.concurrent.FutureTask.get(FutureTask.java:205)
+	at ttt.SharingTest.main(SharingTest.java:38)
+
+*/
+````
