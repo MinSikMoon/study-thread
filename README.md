@@ -1,6 +1,6 @@
 # study-thread
 - 최근 업무에서 하루 한번, 저녁 특정시간에 실행되는 배치작업을 만들어야 되는 일이 있었다.
-- 외부 협회에서 특정값을 조회, 입력해주는 반복작업인데, 비정상적으로 시간이 걸릴 경우를 대비해 timeout을 걸고 싶었다. [예제 바로가기](#example1)
+- 외부 협회에서 특정값을 조회, 입력해주는 반복작업인데, 비정상적으로 시간이 걸릴 경우를 대비해 timeout을 걸고 싶었다. [예제 바로가기](#loop이-있는 -future-task에-timeout-주기-:-3초컷)
 - 가물가물해진 스레드 사용법 기록
 - 공부책 : 신용권 저 '이것이 자바다' 
 
@@ -465,7 +465,7 @@ error occured : null
 wow it takes too long
 */
 ````
-### loop이 있는 future task에 timeout 주기 : 3초컷 {#example1}
+### loop이 있는 future task에 timeout 주기 : 3초컷
 ````java
 import java.util.ArrayList;
 import java.util.List;
